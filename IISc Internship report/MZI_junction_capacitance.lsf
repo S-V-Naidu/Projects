@@ -1,0 +1,27 @@
+###########################################################################
+# Scriptfile: junction_capacitance.lsf
+#
+# Description:
+# This file calculates the capacitance from the variation in electron and 
+# hole density between two adjacent bias voltages from the monitor data
+# 
+#
+# Copyright 2015, Lumerical Solutions, Inc.
+###########################################################################
+
+# get charge data from monitor
+
+charge = getresult("CHARGE::total_charge_monitor","total_charge");
+Qn = e*charge.n;
+Qp = e*charge.p;
+V = charge.V_drain;
+L = length(V);
+
+# determine the difference between the carrier density at applied bias
+# vs. the previous bias 
+
+Cn = (Qn(2:L) - Qn(1:L-1)) / (V(2) - V(1));
+Cp = (Qp(2:L) - Qp(1:L-1)) / (V(2) - V(1));
+Vmid = (V(1:L-1) + V(2:L)) / 2;
+plot(Vmid,Cn*1e10,Cp*1e10, "voltage (v)", "Capacitance (pF/cm)"); # pF/cm
+legend("Cn", "Cp");

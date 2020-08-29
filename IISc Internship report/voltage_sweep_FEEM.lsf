@@ -1,0 +1,32 @@
+###########################################################################
+#
+# This file extracts the FEEM sweep data and plots the index
+# change and the loss versus voltage
+# 
+# Copyright 2018, Lumerical Solutions, Inc.
+###########################################################################
+
+V = linspace(0,-4,9);
+neff = getsweepresult("voltage","neff");
+neff = pinch(neff.neff);
+
+#neff = pinch(neff,1,1);  # get index of first optical mode
+
+# Calculate the change in effective index and loss
+dneff = real(neff - neff(1));
+alpha_dB_cm = -0.2*log10(exp(1))*(-2*pi*imag(neff)/1.55e-6);
+
+plot(V,dneff,"Voltage (V)","delta neff");
+plot(V,alpha_dB_cm, "Voltage (V)", "loss (dB/cm)");
+
+# Calculate the modulation response
+L = 10000e-6;  # length = 1 cm
+la0 = 1.55e-6;
+arg = 2*pi*real(neff)/la0*L;
+ang1 = arg - floor(real(neff)/la0*L)*2*pi;
+ang2 = ang1(1);
+T = 0.25*abs(exp(-1i*ang1 - 2*pi*imag(neff)/la0*L) + exp(-1i*ang2 - 2*pi*imag(neff(1))/la0*L))^2;
+plot(V,T,"Voltage(V)","Transmission (a.u.)");
+
+?"Extinction ratio: " + num2str(10*log10(max(T)/min(T))) + "dB";
+?"Insertion loss: " + num2str(-10*log10(max(T))) + "dB";

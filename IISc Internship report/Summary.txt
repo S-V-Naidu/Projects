@@ -1,0 +1,1 @@
+Here I have done a research on Silicon Photonics. We had conducted all our experiments on silicon waffers using a tool called Lumerical. The output I got is shown in the report I have prepared.

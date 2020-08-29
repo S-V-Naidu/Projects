@@ -1,0 +1,98 @@
+##  This script file will load charge data from a user defined .mat file
+##  containing a 'charge' dataset with attributes 'n' and 'p'
+##  providing electron and hole density in units of /cm^3
+##  and calculate index perturbation due to the charge density
+##  for silcion at a wavelength of 1310 nm or 1550 nm using 
+##  the Soref-Bennett model [R.A.Soref et.al., SPIE Integr.Opt.Ckt.Eng.704,32(1987)]
+##  The script will also save the index data in a dataset and
+##  (optionally) load it into an n,k material attribute defined by user
+
+clear;
+closeall;
+format long;
+
+## User inputs
+lambda = 1550e-9;			# options: 1550 nm and 1310 nm
+charge_filename = "wg_charge.mat";		# dataset must be named 'charge' with attributes 'n' and 'p'
+data_type = "finite element";		# options: "finite element" or "rectilinear"
+bias_parameter_name = "V_drain";		# leave blank ("") if no bias sweep is present
+nk_attribute_name = "FEEM::nk import";	# leave blank ("") to not load data
+data_assignment_behaviour = "accumulate";	# options: "accumulate" or "overwrite"
+
+ni = 1e10;  # Silicon intrinsic electron/hole density (/cm^3)
+
+# Load charge data
+matlabload(charge_filename);
+n = pinch(charge.n);
+p = pinch(charge.p);
+x = charge.x;
+y = charge.y;
+z = charge.z;
+if(data_type == "finite element"){
+    elements = charge.elements;
+}
+if(length(bias_parameter_name)>0){
+    eval("V = charge."+bias_parameter_name+";");
+}
+
+## Soref-Bennett parameters
+
+if (lambda == 1310e-9){
+    dn_An = -6.2e-22;
+    dn_En = 1;
+    dn_Ap = -6e-18;
+    dn_Ep = 0.8;
+    dalpha_An = 6e-18;
+    dalpha_En = 1;
+    dalpha_Ap = 4e-18;
+    dalpha_Ep = 1;
+}
+
+else if (lambda == 1550e-9){
+    dn_An = -8.8e-22;
+    dn_En = 1;
+    dn_Ap = -8.5e-18;
+    dn_Ep = 0.8;
+    dalpha_An = 8.5e-18;
+    dalpha_En = 1;
+    dalpha_Ap = 6e-18;
+    dalpha_Ep = 1;
+}
+
+# Calculate delta_n and delta_k
+delta_n = dn_An * (n^dn_En) + dn_Ap * (p^dn_Ep);
+delta_alpha = (dalpha_An * n^dalpha_En + dalpha_Ap * p^dalpha_Ep) * 100;  # convert to /m
+delta_k = delta_alpha * lambda / (4*pi);
+
+charge.addattribute("dn",n);
+charge.addattribute("dp",p);
+charge.addattribute("delta_n",delta_n);
+charge.addattribute("delta_k",delta_k);
+
+index = delta_n + 1i * delta_k;
+
+# create index perturbation dataset
+if(data_type == "finite element"){
+    perturbation = unstructureddataset("perturbation",x,y,z,elements);
+}
+else if(data_type == "rectilinear"){
+    perturbation = rectilineardataset("perturbation",x,y,z);
+}
+if(length(bias_parameter_name)>0){
+    perturbation.addparameter("V",V);
+}
+else{
+    perturbation.addparameter("a",1);
+}
+perturbation.addattribute("index",index);
+
+# load data into n,k grid attribute
+
+if(length(nk_attribute_name)>0){
+    switchtolayout;
+    select(nk_attribute_name);
+    importdataset(perturbation);
+    set("selected attribute","index");
+    set("data assignment behaviour",data_assignment_behaviour);
+}
+format short;
