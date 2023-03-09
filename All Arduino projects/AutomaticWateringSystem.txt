@@ -1,0 +1,387 @@
+SIGN IN
+
+
+Arduino Web Editor
+
+
+Getting Started
+
+
+Arduino Project Hub
+
+
+Device Manager
+
+
+Digital
+Store
+
+
+Arduino IoT Cloud
+
+NOW CHROME OS READY!
+Chrome OS App. $0.99 month
+ARDUINO CREATE IS NOW AVAILABLE ON CHROME OS!
+DOWNLOAD THE APPpowered by amazon web services
+SEARCH PROJECTS
+Automatic Plant Watering System Using Arduino Uno
+Automatic Plant Watering System Using Arduino Uno © GPL3+
+This system monitors the moisture of soil and waters it by 5v DC motor based water pump when needed.
+
+home automationinternet of things
+129,699 VIEWS32 COMMENTS104 RESPECTS
+COMPONENTS AND SUPPLIES
+A000066 iso both	
+Arduino UNO & Genuino UNO
+×	1	
+Fairchild semiconductor 1n4004. image	
+1N4007 – High Voltage, High Current Rated Diode
+×	1	
+Fairchild semiconductor pn2222abu. image	
+General Purpose Transistor NPN
+×	1	
+826 04	
+Male/Female Jumper Wires
+×	1	
+Mfr 25fbf52 221r sml	
+Resistor 221 ohm
+×	1	
+5v DC Motor
+×	1	
+Water tube
+×	1	
+Glue gun
+×	1	
+Weter container
+×	1	
+Bread board
+×	1	
+Soil Moisture Sensor
+×	1	
+APPS AND ONLINE SERVICES
+Ide web	
+Arduino IDE
+ABOUT THIS PROJECT
+Whenever me and my family go for vacations, I used to get worried about my plants because they need water on regular basis. I gone through several options to solve this problem as plants need water according to the moisture level of soil. So I have made Automatic Plant Watering System Using Arduino UNO.
+
+In this system, soil moisture sensor senses the moisture level of the soil. If soil will get dry then sensor senses low moisture level and automatically switches on the water pump to supply water to the plant. As plant get sufficient water and soil get wet then sensor senses enough moisture in soil. After which the water pump will automatically get stopped.
+
+I have used a self made water pump in this system using 5 volt DC motor. I could use 12 volt water pump in the system but to operate this, it will require a relay module. So, to reduce all these hardware complexity, I made DC motor based water pump using diode, transistor and registers combined circuit which operates DC motor according to the Arduino code.
+
+Circuit description:
+1. DC motor using water pump:
+I use DC motor to make water pump. DC motor has two leads one is positive and another one is negative. If we connect them directly to the Arduino board then it will damage the board. To overcome this problem, NPN transistor is used to control the switching activity of the motor according to the code.
+
+Arduino pin 13 (named as WATERPUMP in code) is used to turn on and off the transistor. According to the code to control the speed of the motor we need to enter a value between 0 and 255 in the Serial Monitor. I used 200 value for the speed of the motor.
+
+2. Soil moisture sensor:
+The soil moisture sensor consists of two leads that are used to measure volume of water content in soil. These leads allow the current to pass through the soil and in return calculates the resistance value to measure the moisture level. If there is more water in soil then soil will conduct more electricity, means less resistance value along with high level of moisture. In the same manner if there is less water in soil then soil will conduct less electricity, means high resistance value along with low level of moisture.
+
+
+For updated version of this system please visit my blog https://arduinounomagic.blogspot.com/2018/10/smart-plant-watering-system-using.html
+
+CODE
+Automatic plant watering system code C/C++
+int WATERPUMP = 13; //motor pump connected to pin 13
+int sensor = 8; //sensor digital pin vonnected to pin 8
+int val; //This variable stores the value received from Soil moisture sensor.
+
+void setup() {
+  
+  pinMode(13,OUTPUT); //Set pin 13 as OUTPUT pin
+  pinMode(8,INPUT); //Set pin 8 as input pin, to receive data from Soil moisture sensor.
+  //Initialize serial and wait for port to open:
+  Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
+  while (! Serial);// wait for serial port to connect. Needed for native USB
+  Serial.println("Speed 0 to 255");
+}
+
+void loop()
+  { 
+  if (Serial.available()) //loop to operate motor
+  {
+    int speed = Serial.parseInt(); // to read the number entered as text in the Serial Monitor 
+    if (speed >= 0 && speed <= 255)
+    {
+      analogWrite(WATERPUMP, speed);// tuns on the motor at specified speed 
+    }
+  }
+  val = digitalRead(8);  //Read data from soil moisture sensor  
+  if(val == LOW) 
+  {
+  digitalWrite(13,LOW); //if soil moisture sensor provides LOW value send LOW value to motor pump and motor pump goes off
+  }
+  else
+  {
+  digitalWrite(13,HIGH); //if soil moisture sensor provides HIGH value send HIGH value to motor pump and motor pump get on
+  }
+  delay(400); //Wait for few second and then continue the loop.
+}
+SCHEMATICS
+Fritzing Diagram of the system	
+I had used black colored wire for ground, red-colored wire for VCC and blue colored wires for arduino inputs.
+Capture 5uektpi7bg
+COMMENTS
+Please log in or sign up to comment.
+
+M.V.P.
+M.V.P.
+2 years ago
+I recommend some improvements to your project:
+
+use analogRead(8) since soil moisture can be optimum between the digital limits.
+power the moisture sensor from an Arduino pin just when you read data, to avoid corrosion. Every 10 - 15 minutes is fast enough.
+Friedrich Ramser
+Friedrich Ramser
+2 years ago
+Don't use this sort (resistive) sensors!
+Use capacitive one.
+https://www.ramser-elektro.at/der-gies-o-shield-fuer-den-arduino
+
+M.V.P.
+M.V.P.
+2 years ago
+The site of Mr. Ramser is in German. Searching the internet, we see the capacitive sensor is a more expensive alternative, so for home use and several pots, this may become restrictive. The main issues with humidity sensors is not the accuracy or corrosion (mine is resistive and is as new after 6 months use: see my project), but the correct averaging along the sensor, the local/global humidity in the pot, the sticking mud on the sensor surface, which is altering the readings, etc.
+
+1 thank
+lsvineeth sankre
+lsvineeth sankre
+2 years ago
+Good stuff ! I'm willing to do this project but I have small query. What if water from source get empty ? Because if there is no water to suck, the motor can fail or damage. How to overcome this small issue?
+
+M.V.P.
+M.V.P.
+2 years ago
+If the water reservoir is empty, the motor will run continuously, eventually failing (although not necessarily). The real world application is not so simple. Each plant needs a different amount of water! A relatively long test period is required. Best advice: get a bottle big enough for the time you are away. In my project https://www.hackster.io/M-V-P/attiny85-plants-care-493db9 a 5L bottle is enough for two-three months.
+Otherwise: put a water level sensor in the bottle and connect it by WiFi to your phone: you will get a message every 2-3 months to refill the bottle!!!
+
+Benhault
+Benhault
+2 years ago
+Hey Can anyone help me with the Soil Moisture Sensor, I didn't use the one mentioned here but the other one. It has 4 pins Vcc, Gnd, A0, D0.
+Now I just want to know which of the two A0 and D0 to connect where in Arduino Board?
+Please reply ASAP!!!
+
+M.V.P.
+M.V.P.
+2 years ago
+Use A0 pin for analog input. For more detail : https://maker.pro/arduino/projects/arduino-soil-moisture-sensor. D0 is just a on/off signal after you select a threshold value using a potentiometer. Good luck!
+
+Benhault
+Benhault
+2 years ago
+Will there be change in programming also..Kindly provide the necessary change as well.
+Thank you!
+
+M.V.P.
+M.V.P.
+2 years ago
+The code shown in this project is too simple and controlled by the Serial interface. Look at my project (https://www.hackster.io/M-V-P/attiny85-plants-care-493db9) or those of other hacksters for autonomous systems, based on analog input. Come with new ideas!
+
+Neeti Thakur Bisen
+Neeti Thakur Bisen
+2 years ago
+If you are following the given code then connect D0 pin of soil moisture sensor to the pin 8 of the Arduino board.
+
+Benhault
+Benhault
+2 years ago
+Hey! tried it but the pump is not sucking up the water, although an alternative dc motor in output is running fine but I had to apply an initial force to give it a starting torque but once it gets started it works fine. But it's not working with the water pump as I can't provide it starting torque. Kindly help ASAP.
+
+Simón Jaramillo
+Simón Jaramillo
+2 years ago
+How did you make the water-pump?
+
+Neeti Thakur Bisen
+Neeti Thakur Bisen
+2 years ago
+Steps to make water pump using 5 volt DC motor are as follows-
+
+Take a small plastic box.
+Make one hole in the middle of the box's cap and attach the DC motor.
+Take a round shaped plastic plate and attach 5 small plastic plates vartically.
+Attach it with the rotater of the DC motor.
+Make another two holes to attach water pipes.
+Attach 5 volt DC motor as shown in fritzing diagram with the arduino board.
+Or you can check out this video link
+https://youtu.be/KidJIbFJ3_M
+
+1 thank
+lsvineeth sankre
+lsvineeth sankre
+2 years ago
+I tried to make water pump but the pump is not sucking water. So I'm trying to buy this one: https://www.amazon.in/dp/B01JZ0B2S4/ref=cm_sw_r_cp_apa_i_wuoPBbCB9MHRP. Will it be suggestive to buy this? Please reply ASAP
+
+Engr Khan
+Engr Khan
+2 years ago
+Nice project. By the way, Students and hobbyist may get a pdf project report and full source code here:
+https://www.electricaltechnology.org/2018/08/automatic-plant-watering-irrigation-system.html
+
+By the way, I didnt check the code... Will manage time to post the full project with source code.
+
+Hozefa Jarwala
+Hozefa Jarwala
+2 years ago
+Need help regarding soil moisture sensor,
+I would like to know which soil moisture sensor is used for the same??
+Kindly reply, thankyou
+
+Neeti Thakur Bisen
+Neeti Thakur Bisen
+2 years ago
+For this project i purchased soil moisture sensor from amazon. It is working perfectly. you can use capacitive soil moisture sensor for better results but it is very expansive alternative.
+I am providing the link of amazon from where I purchased the soil moisture sensor.
+https://www.amazon.in/dp/B0737JWNNL/ref=cm_sw_r_other_apa_i_fLPIBb7EC85MR
+
+Hozefa Jarwala
+Hozefa Jarwala
+2 years ago
+Thankyou...
+
+Albert1970
+Albert1970
+2 years ago
+I don t know anything about arduino but o have an idea to transform in a real project. I want a small indoor greenhouse. I want automatically control irrigation (water and moisture sensors + waterpump), humidity (small fan), light (led with right spectrum for plants), wifi connection and possibility to see from mobilephone), 4 different programs for 4 different kind of plants. I need only hardware and software but I have already my greenhouse. Who can help me and how much does it cost?
+iolialberto1970@gmail.com
+0039 335 7425551
+
+lsvineeth sankre
+lsvineeth sankre
+2 years ago
+I tried to make water pump but the pump is not sucking water. So I'm trying to buy this one: https://www.amazon.in/dp/B01JZ0B2S4/ref=cm_sw_r_cp_apa_i_wuoPBbCB9MHRP. Will it be suggestive to buy this? Please reply ASAP
+
+Albert1970
+Albert1970
+2 years ago
+Dear
+I am not looking for a water pump only. I need someone who can provide me with a complete system. Hydroponic growing greenhouse indoor. Pls let me know if you can help me. Thanks
+iolialberto1970@gmail.com
+
+divyenvashi123
+divyenvashi123
+2 years ago
+Is this idea willl possible in large farm if we have solar plant and good water resources?If we will put soil moisture sensors in all corners and then applied this idea to over dc motor to switch on and off.Is this is possible?
+
+maluujjayini
+maluujjayini
+2 years ago
+what is the use of diode here?
+
+maluujjayini
+maluujjayini
+2 years ago
+what is the use of dioide here?
+
+Neeti Thakur Bisen
+Neeti Thakur Bisen
+2 years ago
+Diodes allow electricity to flow only in one direction. When power is off then a negative spike of voltage may occur, which will damage the Arduino or transistor. Therefore I had used a diode (help to sort out reverse current from the motor) to protect against this damage.
+
+Benhault
+Benhault
+2 years ago
+Hey! tried it but the pump is not sucking up the water, although an alternative dc motor in output is running fine but I had to apply an initial force to give it a starting torque but once it gets started it works fine. But it's not working with the water pump as I can't provide it starting torque. Kindly help ASAP.
+
+The_xD
+The_xD
+a year ago
+i did same but the motor just runs and never stops 😦 plz help
+
+1 thank
+Honey8888
+Honey8888
+a year ago
+what happens if i remove the arduino from my PC after dumping the code ...
+does it still works ????????
+
+Rajsingh 1137
+Rajsingh 1137
+7 months ago
+very nice.
+
+hricha singh
+hricha singh
+5 months ago
+Can we use raspberry pi instead of Arduino for plant watering system ??
+
+M.V.P.
+M.V.P.
+5 months ago
+Of course! It is like killing flies with a canon, but it can be done.
+
+orenlibane
+orenlibane
+16 days ago
+is there a way to get input from more than 1 moisture sensor and use 1 pump distribute the water to the correct plant?
+
+I guess moisture sensors data can be stored in an array... but how can I use 1 pump to distribute to multiple plants?
+
+AUTHOR
+Default
+Neeti Thakur Bisen
+1 PROJECT11 FOLLOWERS
+PUBLISHED ON
+June 8, 2018
+MEMBERS WHO RESPECT THIS PROJECT
+AdambenzPhotoPhotoAvatar fofgrbxpczDefaultPhotoErospeterProfilepic
+and 96 others
+
+SEE SIMILAR PROJECTS
+YOU MIGHT LIKE
+TABLE OF CONTENTS
+Automatic Plant Watering System Using Arduino Uno
+Components and supplies
+Apps and online services
+About this project
+Circuit description
+1. DC motor using water pump
+2. Soil moisture sensor
+Code
+Schematics
+Comments(32)
+SIMILAR PROJECTS YOU MIGHT LIKE
+Automatic Plant Watering System with Arduino
+Keep your plants watered even when you forget or go on vacation with this automatic watering system.
+
+Automatic Plant Watering System with Arduino
+Project tutorial by Team RobotGeek Projects Team
+
+45,779 VIEWS4 COMMENTS83 RESPECTS
+Automatic Watering System
+Keep outdoor plants growing when it gets hot and dry without wasting water or your time.
+
+Automatic Watering System
+Project tutorial by Manson Hau
+
+13,524 VIEWS11 COMMENTS56 RESPECTS
+WaterPi: Houseplant Remote Watering and Monitoring System
+WaterPi tracks critical metrics about the houseplant, visualizing those metrics with charts, and waters the plant remotely.
+
+WaterPi: Houseplant Remote Watering and Monitoring System
+Project tutorial by Demirhan Aydin
+
+38,718 VIEWS16 COMMENTS154 RESPECTS
+Automatic Watering System
+Water your garden with up to three sprinklers directly from your water tap.
+
+Automatic Watering System
+Project tutorial by PRosenb
+
+25,535 VIEWS21 COMMENTS75 RESPECTS
+Double Plant Watering 2
+An other double plant watering version, now with more autonomy and less power consumption.
+
+Double Plant Watering 2
+Project in progress by adamneareva
+
+13,920 VIEWS23 COMMENTS40 RESPECTS
+Double Plant Watering
+Another plant watering system, now with a light sensor, 4 LEDs, silent pumps, and memory.
+
+Double Plant Watering
+Project in progress by adamneareva and Fabio Cardoso
+
+2,265 VIEWS0 COMMENTS12 RESPECTS
+Powered by
